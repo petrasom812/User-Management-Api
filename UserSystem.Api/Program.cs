@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using UserSystem.Api.Data;
+using UserSystem.Api.Interface;
 using UserSystem.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
-builder.Services.AddScoped<ServiceUser>();
+builder.Services.AddScoped<IServiceUser, ServiceUser>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=user.db"));
 builder.Services.AddSwaggerGen();

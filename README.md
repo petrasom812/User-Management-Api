@@ -5,7 +5,9 @@
 - Soft delete (IsActive flag)
 - Email uniqueness validation
 - DTO-based architecture
+- Service + Interface pattern (dependency injection)
 - Async EF Core implementation
+
 
 ## Tech Stack
 - ASP.NET Core Web API

@@ -2,10 +2,11 @@ using UserSystem.Api.Models;
 using UserSystem.Api.Dtos;
 using UserSystem.Api.Data;
 using Microsoft.EntityFrameworkCore;
+using UserSystem.Api.Interface;
 
 namespace UserSystem.Api.Services
 {
-    public class ServiceUser
+    public class ServiceUser : IServiceUser
     {
         private readonly AppDbContext _context;
         public ServiceUser(AppDbContext context)
@@ -13,7 +14,7 @@ namespace UserSystem.Api.Services
             _context = context;
         }
         //Get All Users
-        public async Task<List<GetAllUsersDto>> GetAllUsers()
+        public async Task<List<GetAllUsersDto>> GetAllUsersAsync()
         {
             return await _context.Users
                 .AsNoTracking()
@@ -27,7 +28,7 @@ namespace UserSystem.Api.Services
                 }).ToListAsync();
         }
         //Get a user detail by Id
-        public async Task<GetUserDetailByIdDto?> GetUserDetailById(int id)
+        public async Task<GetUserDetailByIdDto?> GetUserDetailByIdAsync(int id)
         {
             var user = await _context.Users.FindAsync(id);
 
@@ -44,7 +45,7 @@ namespace UserSystem.Api.Services
         }
 
         //Add new user
-        public async Task<GetUserDetailByIdDto> AddNewUser(string email, string username, string role)
+        public async Task<GetUserDetailByIdDto> AddNewUserAsync(string email, string username, string role)
         {
             await EnsureEmailIsUnique(email);
             var user = new UserModel
@@ -72,7 +73,7 @@ namespace UserSystem.Api.Services
             };
         }
         //Update user
-        public async Task<UpdateUserDetailDto?> UpdateUserDetail(int id, string username, string email, string role)
+        public async Task<UpdateUserDetailDto?> UpdateUserDetailAsync(int id, string username, string email, string role)
         {
             var user = await _context.Users.FindAsync(id);
 
@@ -99,7 +100,7 @@ namespace UserSystem.Api.Services
                 EditedAt = user.EditedAt
             };
         }
-        public async Task SoftDelete(int id)
+        public async Task SoftDeleteAsync(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
@@ -107,6 +108,17 @@ namespace UserSystem.Api.Services
             if (!user.IsActive)
                 throw new ArgumentException("User already inactive");
             user.IsActive = false;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ReActivateUserAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                throw new ArgumentException("User not found");
+            if (user.IsActive)
+                throw new ArgumentException("User already active");
+            user.IsActive = true;
             await _context.SaveChangesAsync();
         }
 
@@ -130,5 +142,9 @@ namespace UserSystem.Api.Services
             if (exists)
                 throw new ArgumentException("Email already exists");
         }
+    }
+
+    public interface IServiceUSer
+    {
     }
 }
